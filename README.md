@@ -33,8 +33,13 @@ This project addresses these challenges by designing and implementing an automat
      - Structural schema validation (missing/unexpected columns)
      - Row-level validation (types, nullability, ranges, allowed values, formats)
      - Validation error reporting and invalid record quarantine with detailed JSON metadata traces
-4. Implement data versioning, lineage tracking, and checkpoint-based recovery.
-5. Build a dimensional data warehouse using star schema modeling.
+4. Execute End-to-End Orchestration via the **ETLT++** Architecture Pattern.
+   - **Phase 4:** Pipeline orchestration and T2 Transformation Layer
+     - Unified `PipelineRunner` and dynamic `PipelineRegistry`
+     - Clean separation of T1 (Contract) and T2 (Business) logic
+     - Business logic: data cleaning, normalizations, deduplication, and field derivations
+     - Curated analytical storage zone in Parquet format
+5. Implement data versioning, lineage tracking, and checkpoint-based recovery.
 6. Deliver curated analytical datasets for Power BI and Tableau dashboards.
 7. Provide pipeline monitoring with freshness, completeness, accuracy, and contract adherence metrics.
 8. Maintain quarantine and error-handling mechanisms for invalid records.
