@@ -1,0 +1,67 @@
+{
+  "dataset": "transactions",
+  "version": "1.0",
+  "owner": "data-engineering",
+  "description": "Contract for transaction records ingested from source systems.",
+  "required_fields": [
+    "transaction_id",
+    "transaction_date",
+    "amount"
+  ],
+  "fields": {
+    "transaction_id": {
+      "type": "string",
+      "nullable": false,
+      "description": "Unique identifier for the transaction"
+    },
+    "transaction_date": {
+      "type": "date",
+      "nullable": false,
+      "format": "YYYY-MM-DD",
+      "description": "Date the transaction occurred"
+    },
+    "amount": {
+      "type": "float",
+      "nullable": false,
+      "min_value": 0.0,
+      "description": "Transaction amount in base currency"
+    },
+    "customer_id": {
+      "type": "string",
+      "nullable": true,
+      "description": "Identifier for the customer"
+    },
+    "product_id": {
+      "type": "string",
+      "nullable": true,
+      "description": "Identifier for the product"
+    },
+    "location_id": {
+      "type": "string",
+      "nullable": true,
+      "description": "Identifier for the transaction location"
+    },
+    "status": {
+      "type": "string",
+      "nullable": false,
+      "allowed_values": ["completed", "pending", "cancelled", "refunded"],
+      "description": "Current status of the transaction"
+    }
+  },
+  "rules": [
+    {
+      "name": "positive_amount",
+      "description": "Transaction amount must be non-negative",
+      "field": "amount",
+      "condition": "value >= 0",
+      "severity": "hard"
+    },
+    {
+      "name": "valid_date",
+      "description": "Transaction date must not be in the future",
+      "field": "transaction_date",
+      "condition": "value <= current_date",
+      "severity": "soft"
+    }
+  ]
+}

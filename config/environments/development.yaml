@@ -1,0 +1,27 @@
+# ============================================================
+# Development Environment Configuration
+# ============================================================
+
+environment: development
+
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    database: pipeline_warehouse
+    pool_size: 5
+
+  snowflake:
+    enabled: false
+
+logging:
+  level: DEBUG
+  console: true
+
+api:
+  debug: true
+  reload: true
+
+pipeline:
+  checkpoint_enabled: true
+  dry_run: false

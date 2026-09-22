@@ -1,0 +1,34 @@
+# ============================================================
+# Docker Compose — Local Development Environment
+# ============================================================
+# Usage: docker-compose up -d
+# ============================================================
+
+version: "3.9"
+
+services:
+  # ----------------------------------------------------------
+  # PostgreSQL — Local Development Warehouse
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: pipeline_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pipeline_warehouse}
+      POSTGRES_USER: ${POSTGRES_USER:-pipeline_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pipeline_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/scripts/init_database.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pipeline_user} -d ${POSTGRES_DB:-pipeline_warehouse}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

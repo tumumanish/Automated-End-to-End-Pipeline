@@ -1,0 +1,44 @@
+# ============================================================
+# Application Settings
+# ============================================================
+
+application:
+  name: "Automated Data Pipeline & BI Architecture"
+  version: "0.1.0"
+  environment: "development"  # Overridden by APP_ENV
+
+# --- Data Paths ---
+data:
+  raw_path: "data/raw"
+  staging_path: "data/staging"
+  processed_path: "data/processed"
+  curated_path: "data/curated"
+  quarantine_path: "data/quarantine"
+  archive_path: "data/archive"
+
+# --- Database ---
+database:
+  postgres:
+    schemas:
+      - raw
+      - staging
+      - warehouse
+      - analytics
+      - metadata
+      - monitoring
+
+  snowflake:
+    enabled: false  # Enable when Snowflake credentials are configured
+
+# --- API ---
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: true
+
+# --- Data Quality Thresholds ---
+quality:
+  freshness_max_age_hours: 24
+  completeness_min_percent: 95.0
+  accuracy_min_percent: 98.0
+  contract_adherence_min_percent: 99.0

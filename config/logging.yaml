@@ -1,0 +1,75 @@
+# ============================================================
+# Logging Configuration
+# ============================================================
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+  detailed:
+    format: "%(asctime)s [%(levelname)s] %(name)s [%(filename)s:%(lineno)d] %(funcName)s: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stdout
+
+  pipeline_file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/pipeline/pipeline.log
+    mode: a
+
+  validation_file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/validation/validation.log
+    mode: a
+
+  lineage_file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/lineage/lineage.log
+    mode: a
+
+  error_file:
+    class: logging.FileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/errors/errors.log
+    mode: a
+
+loggers:
+  pipeline:
+    level: DEBUG
+    handlers: [console, pipeline_file]
+    propagate: false
+
+  validation:
+    level: DEBUG
+    handlers: [console, validation_file]
+    propagate: false
+
+  lineage:
+    level: DEBUG
+    handlers: [console, lineage_file]
+    propagate: false
+
+  errors:
+    level: ERROR
+    handlers: [console, error_file]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console]

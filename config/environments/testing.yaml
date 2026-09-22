@@ -1,0 +1,27 @@
+# ============================================================
+# Testing Environment Configuration
+# ============================================================
+
+environment: testing
+
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    database: pipeline_warehouse_test
+    pool_size: 2
+
+  snowflake:
+    enabled: false
+
+logging:
+  level: WARNING
+  console: true
+
+api:
+  debug: false
+  reload: false
+
+pipeline:
+  checkpoint_enabled: false
+  dry_run: true

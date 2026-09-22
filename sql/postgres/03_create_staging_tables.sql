@@ -1,0 +1,23 @@
+-- ============================================================
+-- PostgreSQL: Create Staging Tables
+-- ============================================================
+-- Staging zone tables for intermediate processing.
+-- ============================================================
+
+-- TODO: Create staging tables based on transformation requirements.
+-- Staging tables hold data between raw ingestion and warehouse loading.
+
+-- Example structure (to be adapted for actual datasets):
+--
+-- CREATE TABLE IF NOT EXISTS staging.transactions (
+--     id SERIAL PRIMARY KEY,
+--     transaction_id VARCHAR(255),
+--     transaction_date DATE,
+--     amount NUMERIC(15, 2),
+--     customer_id VARCHAR(255),
+--     product_id VARCHAR(255),
+--     location_id VARCHAR(255),
+--     status VARCHAR(50),
+--     batch_id VARCHAR(100),
+--     processed_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- );

@@ -1,0 +1,40 @@
+{
+  "dataset": "test_transactions",
+  "version": "1.0",
+  "owner": "test",
+  "description": "Test contract for unit tests.",
+  "required_fields": [
+    "transaction_id",
+    "transaction_date",
+    "amount"
+  ],
+  "fields": {
+    "transaction_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "transaction_date": {
+      "type": "date",
+      "nullable": false,
+      "format": "YYYY-MM-DD"
+    },
+    "amount": {
+      "type": "float",
+      "nullable": false,
+      "min_value": 0.0
+    },
+    "status": {
+      "type": "string",
+      "nullable": false,
+      "allowed_values": ["completed", "pending", "cancelled", "refunded"]
+    }
+  },
+  "rules": [
+    {
+      "name": "positive_amount",
+      "field": "amount",
+      "condition": "value >= 0",
+      "severity": "hard"
+    }
+  ]
+}

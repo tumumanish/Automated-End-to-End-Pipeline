@@ -1,0 +1,57 @@
+-- ============================================================
+-- PostgreSQL: Create Dimension Tables
+-- ============================================================
+-- Warehouse zone dimension tables for the star schema.
+-- ============================================================
+
+-- TODO: Implement dimension tables for the actual business domain.
+-- The following are placeholder examples — adapt as needed.
+
+-- Date Dimension
+-- CREATE TABLE IF NOT EXISTS warehouse.dim_date (
+--     date_key INTEGER PRIMARY KEY,
+--     full_date DATE NOT NULL,
+--     day_of_week INTEGER,
+--     day_name VARCHAR(20),
+--     month INTEGER,
+--     month_name VARCHAR(20),
+--     quarter INTEGER,
+--     year INTEGER,
+--     is_weekend BOOLEAN,
+--     is_holiday BOOLEAN
+-- );
+
+-- Customer Dimension
+-- CREATE TABLE IF NOT EXISTS warehouse.dim_customer (
+--     customer_key SERIAL PRIMARY KEY,
+--     customer_id VARCHAR(255) NOT NULL,
+--     customer_name VARCHAR(255),
+--     segment VARCHAR(100),
+--     region VARCHAR(100),
+--     valid_from TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     valid_to TIMESTAMP WITH TIME ZONE,
+--     is_current BOOLEAN DEFAULT TRUE
+-- );
+
+-- Product Dimension
+-- CREATE TABLE IF NOT EXISTS warehouse.dim_product (
+--     product_key SERIAL PRIMARY KEY,
+--     product_id VARCHAR(255) NOT NULL,
+--     product_name VARCHAR(255),
+--     category VARCHAR(100),
+--     subcategory VARCHAR(100),
+--     valid_from TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     valid_to TIMESTAMP WITH TIME ZONE,
+--     is_current BOOLEAN DEFAULT TRUE
+-- );
+
+-- Location Dimension
+-- CREATE TABLE IF NOT EXISTS warehouse.dim_location (
+--     location_key SERIAL PRIMARY KEY,
+--     location_id VARCHAR(255) NOT NULL,
+--     location_name VARCHAR(255),
+--     city VARCHAR(100),
+--     state VARCHAR(100),
+--     country VARCHAR(100),
+--     region VARCHAR(100)
+-- );

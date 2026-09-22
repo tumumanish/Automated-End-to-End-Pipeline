@@ -1,0 +1,16 @@
+# ============================================================
+# Pipeline Schedule Configuration
+# ============================================================
+
+schedules:
+  daily_full_pipeline:
+    description: "Full pipeline execution — daily at 2:00 AM"
+    cron: "0 2 * * *"
+    pipeline: "etlt_plus_plus"
+    enabled: false  # Enable when pipeline is implemented
+
+  hourly_freshness_check:
+    description: "Data freshness check — every hour"
+    cron: "0 * * * *"
+    pipeline: "freshness_monitor"
+    enabled: false

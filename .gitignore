@@ -1,0 +1,102 @@
+# ============================================================
+# .gitignore — Automated Data Pipeline & BI Architecture
+# ============================================================
+
+# ------------------------------------------------------------
+# Environment & Secrets
+# ------------------------------------------------------------
+.env
+.env.local
+.env.production
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ------------------------------------------------------------
+# Virtual Environment
+# ------------------------------------------------------------
+.venv/
+venv/
+ENV/
+
+# ------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover
+
+# ------------------------------------------------------------
+# Jupyter Notebooks
+# ------------------------------------------------------------
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------
+# IDE
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------
+# Logs (keep directory structure via .gitkeep)
+# ------------------------------------------------------------
+logs/**/*.log
+logs/pipeline/*.log
+logs/validation/*.log
+logs/lineage/*.log
+logs/errors/*.log
+
+# ------------------------------------------------------------
+# Data (keep directory structure via .gitkeep)
+# ------------------------------------------------------------
+data/raw/api/*
+!data/raw/api/.gitkeep
+data/raw/csv/*
+!data/raw/csv/.gitkeep
+data/raw/excel/*
+!data/raw/excel/.gitkeep
+data/raw/database/*
+!data/raw/database/.gitkeep
+
+data/quarantine/validation_errors/*
+!data/quarantine/validation_errors/.gitkeep
+data/quarantine/schema_errors/*
+!data/quarantine/schema_errors/.gitkeep
+data/quarantine/rejected_records/*
+!data/quarantine/rejected_records/.gitkeep
+
+data/staging/*
+!data/staging/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+data/curated/*
+!data/curated/.gitkeep
+
+data/archive/*
+!data/archive/.gitkeep
+
+# ------------------------------------------------------------
+# Docker
+# ------------------------------------------------------------
+docker-data/
+
+# ------------------------------------------------------------
+# OS Files
+# ------------------------------------------------------------
+.DS_Store
+Thumbs.db

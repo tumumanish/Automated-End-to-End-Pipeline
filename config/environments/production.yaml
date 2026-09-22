@@ -1,0 +1,27 @@
+# ============================================================
+# Production Environment Configuration
+# ============================================================
+
+environment: production
+
+database:
+  postgres:
+    host: ${POSTGRES_HOST}
+    port: ${POSTGRES_PORT}
+    database: ${POSTGRES_DB}
+    pool_size: 20
+
+  snowflake:
+    enabled: true
+
+logging:
+  level: INFO
+  console: false
+
+api:
+  debug: false
+  reload: false
+
+pipeline:
+  checkpoint_enabled: true
+  dry_run: false

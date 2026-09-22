@@ -1,0 +1,23 @@
+-- ============================================================
+-- PostgreSQL: Create Fact Tables
+-- ============================================================
+-- Warehouse zone fact tables for the star schema.
+-- ============================================================
+
+-- TODO: Implement fact tables for the actual business domain.
+-- The following is a placeholder example — adapt as needed.
+
+-- Transactions Fact Table
+-- CREATE TABLE IF NOT EXISTS warehouse.fact_transactions (
+--     transaction_key SERIAL PRIMARY KEY,
+--     date_key INTEGER REFERENCES warehouse.dim_date(date_key),
+--     customer_key INTEGER REFERENCES warehouse.dim_customer(customer_key),
+--     product_key INTEGER REFERENCES warehouse.dim_product(product_key),
+--     location_key INTEGER REFERENCES warehouse.dim_location(location_key),
+--     transaction_id VARCHAR(255) NOT NULL,
+--     amount NUMERIC(15, 2),
+--     quantity INTEGER,
+--     status VARCHAR(50),
+--     batch_id VARCHAR(100),
+--     loaded_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- );

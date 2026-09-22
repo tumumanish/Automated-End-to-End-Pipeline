@@ -1,0 +1,80 @@
+# ============================================================
+# Pipeline Configuration
+# ============================================================
+
+pipelines:
+  # --- ETLT++ Pipeline ---
+  etlt_plus_plus:
+    name: "ETLT++ Pipeline"
+    description: "Extract → Contract → Validate/Clean → Versioned Raw → Transform → Curated → BI"
+    enabled: true
+    stages:
+      - extract
+      - contract_validation
+      - data_quality
+      - versioned_raw_storage
+      - business_transformation
+      - curated_output
+    retry:
+      max_attempts: 3
+      delay_seconds: 60
+    checkpoint:
+      enabled: true
+
+  # --- ELTL++ Pipeline ---
+  eltl_plus_plus:
+    name: "ELTL++ Pipeline"
+    description: "Extract → Raw Load → Managed Raw → Transform → Curated Semantic → BI"
+    enabled: true
+    stages:
+      - extract
+      - raw_load
+      - managed_raw
+      - transformation
+      - curated_semantic
+    retry:
+      max_attempts: 3
+      delay_seconds: 60
+    checkpoint:
+      enabled: true
+
+  # --- Basic ETLT ---
+  etlt:
+    name: "ETLT Pipeline"
+    description: "Basic Extract-Transform-Load-Transform pattern"
+    enabled: false
+    stages:
+      - extract
+      - transform
+      - load
+      - transform_analytical
+
+  # --- Basic ELTL ---
+  eltl:
+    name: "ELTL Pipeline"
+    description: "Basic Extract-Load-Transform-Load pattern"
+    enabled: false
+    stages:
+      - extract
+      - load_raw
+      - transform
+      - load_curated
+
+# --- Batch Settings ---
+batch:
+  default_size: 1000
+  max_size: 10000
+
+# --- Sources ---
+sources:
+  api:
+    timeout: 30
+    retry_attempts: 3
+  csv:
+    encoding: "utf-8"
+    delimiter: ","
+  excel:
+    engine: "openpyxl"
+  database:
+    pool_size: 5
+    max_overflow: 10

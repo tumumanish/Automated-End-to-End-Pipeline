@@ -1,0 +1,30 @@
+-- ============================================================
+-- PostgreSQL: Create Analytical Views
+-- ============================================================
+-- Analytics zone views for BI consumption.
+-- ============================================================
+
+-- TODO: Create analytical views joining facts and dimensions.
+-- Views should provide curated, BI-ready datasets.
+
+-- Example:
+-- CREATE OR REPLACE VIEW analytics.vw_transaction_summary AS
+-- SELECT
+--     d.full_date,
+--     d.month_name,
+--     d.quarter,
+--     d.year,
+--     c.customer_name,
+--     c.segment,
+--     p.product_name,
+--     p.category,
+--     l.city,
+--     l.country,
+--     f.amount,
+--     f.quantity,
+--     f.status
+-- FROM warehouse.fact_transactions f
+-- JOIN warehouse.dim_date d ON f.date_key = d.date_key
+-- JOIN warehouse.dim_customer c ON f.customer_key = c.customer_key
+-- JOIN warehouse.dim_product p ON f.product_key = p.product_key
+-- JOIN warehouse.dim_location l ON f.location_key = l.location_key;
