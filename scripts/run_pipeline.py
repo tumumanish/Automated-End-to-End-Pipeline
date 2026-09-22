@@ -27,6 +27,7 @@ from src.utils.logger import setup_logging, get_logger
 from src.ingestion.ingestion_factory import create_ingestion
 from src.storage.raw_storage import save_raw_data
 from src.errors.error_handler import handle_ingestion_error
+from src.contracts.validation_service import ValidationService
 
 setup_logging()
 logger = get_logger("pipeline")
@@ -99,6 +100,8 @@ def main() -> None:
     parser.add_argument("--url", help="API URL (for api source)")
     parser.add_argument("--dataset", default=DATASET_NAME,
                         help="Dataset name (default: transactions)")
+    parser.add_argument("--contract-version", default=None,
+                        help="Version of the data contract to validate against")
     args = parser.parse_args()
 
     batch_id = generate_batch_id()
@@ -161,15 +164,56 @@ def main() -> None:
     db_success = try_db_operations(batch_id, args.source, source_name, df, raw_path)
 
     if db_success:
-        print(f"[3/3] Loaded into PostgreSQL raw.transactions")
+        print(f"[3/4] Loaded into PostgreSQL raw.transactions")
     else:
-        print(f"[3/3] PostgreSQL load skipped (database unavailable)")
+        print(f"[3/4] PostgreSQL load skipped (database unavailable)")
+
+    # ------------------------------------------------------------------
+    # STEP 4: Validation (Phase 3)
+    # ------------------------------------------------------------------
+    validation_status = "N/A"
+    valid_count = len(df)
+    invalid_count = 0
+    if args.contract_version:
+        print(f"\n[4/4] Validating against contract version {args.contract_version}...")
+        try:
+            validator = ValidationService()
+            df_valid, df_invalid, val_result = validator.run_validation(
+                df=df,
+                dataset_name=dataset_name,
+                contract_version=args.contract_version,
+                batch_id=batch_id
+            )
+            validation_status = val_result.status
+            valid_count = val_result.valid_records
+            invalid_count = val_result.invalid_records
+
+            print(f"\n{'=' * 40}")
+            print(f" DATA VALIDATION SUMMARY")
+            print(f"{'=' * 40}")
+            print(f" Dataset          : {dataset_name}")
+            print(f" Contract Version : {args.contract_version}")
+            print(f" Batch ID         : {batch_id}")
+            print(f" Total Records    : {val_result.total_records}")
+            print(f" Valid Records    : {val_result.valid_records}")
+            print(f" Invalid Records  : {val_result.invalid_records}")
+            print(f" Status           : {val_result.status}")
+            print(f"{'=' * 40}\n")
+            
+            if invalid_count > 0:
+                print(f" -> {invalid_count} records were quarantined.")
+
+        except Exception as exc:
+            logger.error("Validation failed: %s", exc)
+            print(f"VALIDATION FAILED: {exc}")
+    else:
+        print(f"[4/4] Validation skipped (no --contract-version provided)")
 
     # ------------------------------------------------------------------
     # Summary
     # ------------------------------------------------------------------
     duration = time.time() - start_time
-    status = "SUCCESS" if db_success else "SUCCESS (raw file only — DB unavailable)"
+    status = "SUCCESS" if db_success else "SUCCESS (raw file only - DB unavailable)"
 
     print(f"\n{'—' * 50}")
     print(f" INGESTION COMPLETED")

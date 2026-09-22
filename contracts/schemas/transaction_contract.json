@@ -1,67 +1,52 @@
 {
   "dataset": "transactions",
   "version": "1.0",
-  "owner": "data-engineering",
-  "description": "Contract for transaction records ingested from source systems.",
-  "required_fields": [
-    "transaction_id",
-    "transaction_date",
-    "amount"
-  ],
+  "description": "Retail transaction records capturing customer purchases, quantities, amounts, and locations.",
   "fields": {
     "transaction_id": {
       "type": "string",
-      "nullable": false,
-      "description": "Unique identifier for the transaction"
-    },
-    "transaction_date": {
-      "type": "date",
-      "nullable": false,
-      "format": "YYYY-MM-DD",
-      "description": "Date the transaction occurred"
-    },
-    "amount": {
-      "type": "float",
-      "nullable": false,
-      "min_value": 0.0,
-      "description": "Transaction amount in base currency"
+      "required": true,
+      "nullable": false
     },
     "customer_id": {
       "type": "string",
-      "nullable": true,
-      "description": "Identifier for the customer"
+      "required": true,
+      "nullable": false
     },
     "product_id": {
       "type": "string",
-      "nullable": true,
-      "description": "Identifier for the product"
+      "required": true,
+      "nullable": false
     },
-    "location_id": {
-      "type": "string",
-      "nullable": true,
-      "description": "Identifier for the transaction location"
-    },
-    "status": {
-      "type": "string",
+    "transaction_date": {
+      "type": "date",
+      "required": true,
       "nullable": false,
-      "allowed_values": ["completed", "pending", "cancelled", "refunded"],
-      "description": "Current status of the transaction"
+      "format": "YYYY-MM-DD"
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "nullable": false,
+      "minimum": 1
+    },
+    "unit_price": {
+      "type": "number",
+      "required": true,
+      "nullable": false,
+      "minimum": 0
+    },
+    "total_amount": {
+      "type": "number",
+      "required": true,
+      "nullable": false,
+      "minimum": 0
+    },
+    "location": {
+      "type": "string",
+      "required": true,
+      "nullable": false
     }
   },
-  "rules": [
-    {
-      "name": "positive_amount",
-      "description": "Transaction amount must be non-negative",
-      "field": "amount",
-      "condition": "value >= 0",
-      "severity": "hard"
-    },
-    {
-      "name": "valid_date",
-      "description": "Transaction date must not be in the future",
-      "field": "transaction_date",
-      "condition": "value <= current_date",
-      "severity": "soft"
-    }
-  ]
+  "rules": []
 }

@@ -24,7 +24,15 @@ This project addresses these challenges by designing and implementing an automat
 
 1. Design a layered data pipeline architecture supporting ETLT++ and ELTL++ patterns.
 2. Implement automated data ingestion from REST APIs, CSV, Excel, and relational databases.
+   - Modular ingestion adapters (CSV, Excel, API, SQL)
+   - Raw storage layer for immutable source tracking
+   - Detailed ingestion batch logging
 3. Enforce data quality through schema validation, data contracts, and business-rule validation.
+   - **Phase 3:** Data Contracts & Schema Validation
+     - JSON-based versioned data contracts
+     - Structural schema validation (missing/unexpected columns)
+     - Row-level validation (types, nullability, ranges, allowed values, formats)
+     - Validation error reporting and invalid record quarantine with detailed JSON metadata traces
 4. Implement data versioning, lineage tracking, and checkpoint-based recovery.
 5. Build a dimensional data warehouse using star schema modeling.
 6. Deliver curated analytical datasets for Power BI and Tableau dashboards.

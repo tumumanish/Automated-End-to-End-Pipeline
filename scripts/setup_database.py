@@ -30,6 +30,7 @@ SQL_DIR = PROJECT_ROOT / "sql" / "postgres"
 SQL_FILES = [
     "01_create_schemas.sql",
     "02_create_raw_tables.sql",
+    "03_create_validation_tables.sql",
 ]
 
 

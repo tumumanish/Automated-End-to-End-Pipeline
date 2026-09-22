@@ -51,3 +51,23 @@ class QuarantineError(PipelineError):
 class ConfigurationError(PipelineError):
     """Raised when required configuration is missing or invalid."""
     pass
+
+
+class ContractNotFoundError(PipelineError):
+    """Raised when a requested data contract cannot be found."""
+    pass
+
+
+class ContractValidationError(PipelineError):
+    """Raised when a data contract JSON itself is malformed or invalid."""
+    pass
+
+
+class SchemaValidationError(PipelineError):
+    """Raised when a dataset fails structural schema validation (e.g. missing columns)."""
+    pass
+
+
+class DataValidationError(PipelineError):
+    """Raised when a dataset contains row-level data validation errors."""
+    pass

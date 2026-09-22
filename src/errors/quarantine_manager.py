@@ -1,57 +1,77 @@
 """
 Module: quarantine_manager
 Purpose:
-    Manage quarantined (invalid/rejected) records.
-
-    Phase 2: Basic structure.  Full quarantine logic will be added in Phase 3
-    when data-contract validation is implemented.
+    Handle data that fails validation or ingestion, isolating it for review.
 """
 
+import json
 from pathlib import Path
-
+from typing import Any
 import pandas as pd
 
-from src.utils.file_utils import ensure_directory, get_project_root
 from src.utils.logger import get_logger
-from src.utils.timestamps import utc_now
+from src.utils.file_utils import get_project_root
 
 logger = get_logger("errors")
 
 
-def quarantine_records(
-    records: pd.DataFrame,
-    category: str,
-    reason: str,
-    batch_id: str,
-    source_type: str = "unknown",
-) -> Path:
-    """
-    Write rejected records to the quarantine zone.
+class QuarantineManager:
+    """Manages isolation of invalid or errored data."""
 
-    Args:
-        records: DataFrame of rejected records.
-        category: Quarantine category (validation_errors, schema_errors, rejected_records).
-        reason: Human-readable rejection reason.
-        batch_id: Batch identifier.
-        source_type: Source that produced the records.
+    def __init__(self, quarantine_dir: Path | None = None):
+        self._root = quarantine_dir or (get_project_root() / "data" / "quarantine")
+        self._root.mkdir(parents=True, exist_ok=True)
 
-    Returns:
-        Path to the quarantine file.
-    """
-    quarantine_dir = get_project_root() / "data" / "quarantine" / category
-    ensure_directory(quarantine_dir)
+    def quarantine_invalid_records(
+        self,
+        df_invalid: pd.DataFrame,
+        dataset_name: str,
+        batch_id: str,
+        validation_result: Any
+    ) -> Path:
+        """
+        Save invalid records and their validation metadata to the quarantine zone.
 
-    filename = f"{batch_id}_{source_type}.csv"
-    filepath = quarantine_dir / filename
+        Args:
+            df_invalid: DataFrame containing only the invalid rows.
+            dataset_name: Name of the dataset (e.g., transactions).
+            batch_id: The ingestion batch ID.
+            validation_result: The ValidationResult containing error details.
 
-    records.to_csv(filepath, index=False)
+        Returns:
+            Path to the saved quarantined CSV.
+        """
+        if df_invalid.empty:
+            logger.debug("No invalid records to quarantine for batch %s", batch_id)
+            return self._root
 
-    logger.warning(
-        "Quarantined %d records | category=%s reason=%s batch_id=%s path=%s",
-        len(records),
-        category,
-        reason,
-        batch_id,
-        filepath,
-    )
-    return filepath
+        target_dir = self._root / "validation_errors" / dataset_name
+        target_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save original data
+        csv_path = target_dir / f"{batch_id}.csv"
+        # Ensure we don't overwrite existing files
+        if csv_path.exists():
+            csv_path = target_dir / f"{batch_id}_v2.csv"
+            
+        df_invalid.to_csv(csv_path, index=False, encoding="utf-8")
+        
+        # Save rich metadata
+        meta_path = csv_path.with_suffix(".json")
+        metadata = {
+            "batch_id": batch_id,
+            "dataset": dataset_name,
+            "contract_version": validation_result.contract_version,
+            "invalid_record_count": len(df_invalid),
+            "errors": [err.to_dict() for err in validation_result.data_errors] + 
+                      [err.to_dict() for err in validation_result.schema_errors]
+        }
+        
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(metadata, f, indent=2)
+            
+        logger.info(
+            "Quarantined %d records -> %s (Metadata: %s)", 
+            len(df_invalid), csv_path, meta_path
+        )
+        return csv_path
