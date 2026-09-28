@@ -21,7 +21,24 @@ class PipelineRegistry:
             raise ValueError(f"Pipeline '{name}' not found in registry. Available: {list(cls._registry.keys())}")
         return cls._registry[name]
 
-# Standard registration
+    @classmethod
+    def list_pipelines(cls) -> Dict[str, str]:
+        """List all registered pipelines with their class names."""
+        return {name: klass.__name__ for name, klass in cls._registry.items()}
+
+    @classmethod
+    def is_registered(cls, name: str) -> bool:
+        """Check if a pipeline is registered."""
+        return name in cls._registry
+
+
+# ── Standard registrations ──
 from src.pipelines.etlt_plus_plus import ETLTPlusPlusPipeline
+from src.pipelines.eltl_plus_plus import ELTLPlusPlusPipeline
+from src.pipelines.etlt_pipeline import ETLTPipeline
+from src.pipelines.eltl_pipeline import ELTLPipeline
 
 PipelineRegistry.register("etlt_plus_plus", ETLTPlusPlusPipeline)
+PipelineRegistry.register("eltl_plus_plus", ELTLPlusPlusPipeline)
+PipelineRegistry.register("etlt", ETLTPipeline)
+PipelineRegistry.register("eltl", ELTLPipeline)

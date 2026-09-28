@@ -1,0 +1,56 @@
+{
+  "batch_id": "exec_f0aa6b11e3c5",
+  "pipeline": "etlt_plus_plus",
+  "dataset": "transactions",
+  "event_count": 3,
+  "events": [
+    {
+      "event_id": "evt_419469eec1d4",
+      "batch_id": "exec_f0aa6b11e3c5",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "extract",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 0,
+      "output_record_count": 10,
+      "timestamp": "2026-09-28T19:12:30.491549+00:00",
+      "metadata": {
+        "source_type": "csv",
+        "source_name": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\tests\\fixtures\\invalid_transactions.csv"
+      }
+    },
+    {
+      "event_id": "evt_23612bef2f06",
+      "batch_id": "exec_f0aa6b11e3c5",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "raw_storage",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 10,
+      "output_record_count": 10,
+      "timestamp": "2026-09-28T19:12:30.492964+00:00",
+      "metadata": {
+        "raw_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\raw\\csv\\transactions\\exec_f0aa6b11e3c5.csv"
+      }
+    },
+    {
+      "event_id": "evt_473150c1c07d",
+      "batch_id": "exec_f0aa6b11e3c5",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "contract_validation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 10,
+      "output_record_count": 0,
+      "timestamp": "2026-09-28T19:12:30.499859+00:00",
+      "metadata": {
+        "valid": 0,
+        "invalid": 10,
+        "status": "FAILED"
+      }
+    }
+  ]
+}

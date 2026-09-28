@@ -26,11 +26,15 @@ logger = get_logger("pipeline")
 
 SQL_DIR = PROJECT_ROOT / "sql" / "postgres"
 
-# SQL files to execute in order (Phase 2 only)
+# SQL files to execute in order
+# NOTE [SHARED]: Person B will add 04, 05, 06 between 03 and 07.
 SQL_FILES = [
     "01_create_schemas.sql",
     "02_create_raw_tables.sql",
     "03_create_validation_tables.sql",
+    # --- Person B inserts 04_create_dimensions, 05_create_facts, 06_create_views here ---
+    "07_create_monitoring_tables.sql",
+    "08_create_lineage_tables.sql",
 ]
 
 
