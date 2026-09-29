@@ -31,8 +31,11 @@ SQL_DIR = PROJECT_ROOT / "sql" / "postgres"
 SQL_FILES = [
     "01_create_schemas.sql",
     "02_create_raw_tables.sql",
+    "03_create_staging_tables.sql",
     "03_create_validation_tables.sql",
-    # --- Person B inserts 04_create_dimensions, 05_create_facts, 06_create_views here ---
+    "04_create_dimensions.sql",
+    "05_create_facts.sql",
+    "06_create_views.sql",
     "07_create_monitoring_tables.sql",
     "08_create_lineage_tables.sql",
 ]
