@@ -1,0 +1,92 @@
+{
+  "batch_id": "exec_624786fe1951",
+  "pipeline": "etlt_plus_plus",
+  "dataset": "transactions",
+  "event_count": 5,
+  "events": [
+    {
+      "event_id": "evt_0ac4f69e63dc",
+      "batch_id": "exec_624786fe1951",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "extract",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 0,
+      "output_record_count": 100,
+      "timestamp": "2026-09-30T06:29:25.115289+00:00",
+      "metadata": {
+        "source_type": "csv",
+        "source_name": "tests\\fixtures\\sample_transactions.csv"
+      }
+    },
+    {
+      "event_id": "evt_5aecef9d8ed2",
+      "batch_id": "exec_624786fe1951",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "raw_storage",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 100,
+      "output_record_count": 100,
+      "timestamp": "2026-09-30T06:29:25.120845+00:00",
+      "metadata": {
+        "raw_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\raw\\csv\\transactions\\exec_624786fe1951.csv"
+      }
+    },
+    {
+      "event_id": "evt_9a998479663a",
+      "batch_id": "exec_624786fe1951",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "contract_validation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 100,
+      "output_record_count": 100,
+      "timestamp": "2026-09-30T06:29:25.160326+00:00",
+      "metadata": {
+        "valid": 100,
+        "invalid": 0,
+        "status": "PASS"
+      }
+    },
+    {
+      "event_id": "evt_69951f2a3c72",
+      "batch_id": "exec_624786fe1951",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "business_transformation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 100,
+      "output_record_count": 100,
+      "timestamp": "2026-09-30T06:29:25.168319+00:00",
+      "metadata": {
+        "transformations": [
+          "cleaning",
+          "normalization",
+          "deduplication",
+          "business_rules"
+        ]
+      }
+    },
+    {
+      "event_id": "evt_c0eafd2e357f",
+      "batch_id": "exec_624786fe1951",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "curated_storage",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 100,
+      "output_record_count": 100,
+      "timestamp": "2026-09-30T06:29:25.170994+00:00",
+      "metadata": {
+        "curated_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\curated\\transactions\\exec_624786fe1951.csv",
+        "format": "parquet"
+      }
+    }
+  ]
+}

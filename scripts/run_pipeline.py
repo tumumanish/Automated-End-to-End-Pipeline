@@ -28,7 +28,7 @@ logger = get_logger("cli")
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run data pipeline.")
     parser.add_argument("--pipeline", required=True,
-                        choices=["etlt_plus_plus"],
+                        choices=["etlt_plus_plus", "eltl_plus_plus", "etlt", "eltl"],
                         help="The pipeline architecture to execute")
     parser.add_argument("--source", required=True,
                         choices=["csv", "excel", "api", "database"],

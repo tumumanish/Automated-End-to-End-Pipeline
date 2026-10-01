@@ -1,6 +1,7 @@
 # Design and Implementation of an Automated End-to-End Data Pipeline and Business Intelligence Architecture
 
-> **B.Tech CSE (Data Science) — Major Project**
+> **B.Tech CSE (Data Science) — Major Project**  
+> 📖 **Quick Start & Full Operations Manual:** See [PROJECT_USAGE_GUIDE.md](file:///d:/Major_Project_batch19/Automated-End-to-End-Pipeline/PROJECT_USAGE_GUIDE.md) for step-by-step setup, commands, requirements, datasets, and tools.
 
 ---
 
