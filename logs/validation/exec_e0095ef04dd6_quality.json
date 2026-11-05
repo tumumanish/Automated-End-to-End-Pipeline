@@ -1,0 +1,17 @@
+{
+  "batch_id": "exec_e0095ef04dd6",
+  "dataset_name": "transactions",
+  "source": "csv",
+  "timestamp": "2026-10-05T15:36:20.377660+00:00",
+  "record_count": 100,
+  "valid_count": 100,
+  "invalid_count": 0,
+  "quarantined_count": 0,
+  "freshness_score": 100.0,
+  "completeness_score": 100.0,
+  "accuracy_score": 100.0,
+  "contract_adherence_score": 100.0,
+  "pipeline_status": "SUCCESS",
+  "processing_duration_seconds": 0.2,
+  "overall_score": 100.0
+}

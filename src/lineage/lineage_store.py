@@ -61,6 +61,15 @@ class LineageStore:
         self._events.extend(events)
 
         logger.info("Lineage saved | batch=%s events=%d -> %s", batch_id, len(events), filepath)
+
+        try:
+            from src.monitoring.db_writer import MonitoringDBWriter
+            writer = MonitoringDBWriter()
+            for evt in events:
+                writer.write_lineage_event(evt.to_dict())
+        except Exception as exc:
+            logger.debug("DB write skipped for lineage events: %s", exc)
+
         return filepath
 
     def load_events(self, batch_id: str) -> List[LineageEvent]:

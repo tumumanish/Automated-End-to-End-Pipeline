@@ -3,6 +3,7 @@ from src.utils.logger import get_logger
 from src.ingestion.ingestion_factory import create_ingestion
 from src.storage.raw_storage import save_raw_data
 from src.storage.curated_storage import save_curated_data
+from src.storage.versioning import DataVersionManager
 from src.contracts.validation_service import ValidationService
 from src.transformation.transformation_factory import TransformationService
 from src.lineage.lineage_tracker import LineageTracker
@@ -61,9 +62,12 @@ class ETLTPlusPlusPipeline:
         df_raw = adapter.extract()
         extracted_count = len(df_raw)
 
+        # Collect dataset metadata at extraction
+        extract_meta = MetadataCollector.collect_dataset_metadata(df_raw, dataset, "extract")
         tracker.record("extract", input_count=0, output_count=extracted_count, metadata={
             "source_type": source,
             "source_name": adapter.source_name,
+            "schema_snapshot": extract_meta.to_dict(),
         })
         _checkpoint_mgr.save(execution_id, "etlt_plus_plus", "extract", {
             "extracted_count": extracted_count,
@@ -81,6 +85,25 @@ class ETLTPlusPlusPipeline:
         _checkpoint_mgr.save(execution_id, "etlt_plus_plus", "raw_storage", {
             "extracted_count": extracted_count,
             "raw_path": str(raw_path),
+        })
+
+        # ──────────────────────────────────────────────
+        # 2b. SCD TYPE 2 VERSIONING
+        # ──────────────────────────────────────────────
+        logger.info("Step 2b: Applying SCD2 Versioning...")
+        version_mgr = DataVersionManager()
+        version_stats = version_mgr.apply_versioning(
+            df=df_raw,
+            dataset_name=dataset,
+            source_system=source,
+            batch_id=execution_id,
+            record_id_column="transaction_id",
+            schema_version=contract_version,
+        )
+        tracker.record("versioning", input_count=extracted_count, output_count=extracted_count, metadata={
+            "new_records": version_stats.get("new", 0),
+            "changed_records": version_stats.get("changed", 0),
+            "unchanged_records": version_stats.get("unchanged", 0),
         })
 
         # ──────────────────────────────────────────────
@@ -158,8 +181,10 @@ class ETLTPlusPlusPipeline:
         df_transformed = TransformationService.transform(df_valid, dataset)
         transformed_count = len(df_transformed)
 
+        transform_meta = MetadataCollector.collect_dataset_metadata(df_transformed, dataset, "business_transformation")
         tracker.record("business_transformation", input_count=len(df_valid), output_count=transformed_count, metadata={
-            "transformations": ["cleaning", "normalization", "deduplication", "business_rules"],
+            "transformations": ["cleaning", "normalization", "deduplication", "business_rules", "enrichment", "type_conversion"],
+            "schema_snapshot": transform_meta.to_dict(),
         })
         _checkpoint_mgr.save(execution_id, "etlt_plus_plus", "business_transformation", {
             "extracted_count": extracted_count,

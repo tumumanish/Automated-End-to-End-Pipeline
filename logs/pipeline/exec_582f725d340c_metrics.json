@@ -1,0 +1,13 @@
+{
+  "pipeline_name": "etlt_plus_plus",
+  "execution_id": "exec_582f725d340c",
+  "status": "SUCCESS",
+  "started_at": "2026-10-05T15:36:18.585300+00:00",
+  "completed_at": "2026-10-05T15:36:18.710487+00:00",
+  "duration_seconds": 0.12,
+  "records_extracted": 100,
+  "records_valid": 100,
+  "records_invalid": 0,
+  "records_transformed": 100,
+  "error_message": null
+}

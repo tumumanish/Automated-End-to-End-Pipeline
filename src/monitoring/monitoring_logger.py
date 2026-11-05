@@ -46,6 +46,11 @@ class MonitoringLogger:
             json.dump(metrics.to_dict(), f, indent=2, default=str)
 
         logger.info("Quality metrics logged -> %s", filepath)
+        try:
+            from src.monitoring.db_writer import MonitoringDBWriter
+            MonitoringDBWriter().write_quality_metrics(metrics)
+        except Exception as exc:
+            logger.debug("DB write skipped for quality metrics: %s", exc)
         return filepath
 
     def log_pipeline_metrics(self, metric: PipelineExecutionMetric) -> Path:
@@ -65,6 +70,11 @@ class MonitoringLogger:
             json.dump(metric.to_dict(), f, indent=2, default=str)
 
         logger.info("Pipeline metrics logged -> %s", filepath)
+        try:
+            from src.monitoring.db_writer import MonitoringDBWriter
+            MonitoringDBWriter().write_pipeline_execution(metric)
+        except Exception as exc:
+            logger.debug("DB write skipped for pipeline metrics: %s", exc)
         return filepath
 
     def log_alert(self, alert_data: dict) -> Path:
@@ -82,5 +92,11 @@ class MonitoringLogger:
 
         with open(filepath, "a", encoding="utf-8") as f:
             f.write(json.dumps(alert_data, default=str) + "\n")
+
+        try:
+            from src.monitoring.db_writer import MonitoringDBWriter
+            MonitoringDBWriter().write_alert(alert_data)
+        except Exception as exc:
+            logger.debug("DB write skipped for alert: %s", exc)
 
         return filepath

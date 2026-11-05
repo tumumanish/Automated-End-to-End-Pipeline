@@ -7,10 +7,10 @@ Purpose:
 
 from typing import Any
 import pandas as pd
-import numpy as np
 
 from src.contracts.schema_validator import SchemaValidator
 from src.contracts.validation_result import ValidationResult, ValidationErrorMetadata
+from src.utils.validation_utils import is_type, matches_format
 
 
 class ContractValidator:
@@ -114,17 +114,11 @@ class ContractValidator:
                     # In pandas, if it's already a datetime object, format is implicit.
                     # If it's a string, we attempt to parse it. 
                     # The prompt emphasizes: "The validator must not blindly enforce a format unless it is present."
-                    if isinstance(val, str):
-                        try:
-                            # A simple check: can pandas parse it according to a strict format?
-                            # For complex format strings like YYYY-MM-DD, a generic implementation is complex, 
-                            # but we can enforce basic ISO formats as a proxy.
-                            pd.to_datetime(val, format="%Y-%m-%d" if rules["format"] == "YYYY-MM-DD" else None, errors='raise')
-                        except ValueError:
-                            data_errors.append(
-                                self._build_error(index, field_name, "format", f"Value does not match format {rules['format']}", val, rules["format"])
-                            )
-                            row_invalid = True
+                    if isinstance(val, str) and not matches_format(val, rules["format"]):
+                        data_errors.append(
+                            self._build_error(index, field_name, "format", f"Value does not match format {rules['format']}", val, rules["format"])
+                        )
+                        row_invalid = True
 
             if row_invalid:
                 invalid_indices.add(index)
@@ -140,27 +134,7 @@ class ContractValidator:
 
     def _validate_type(self, val: Any, expected_type: str) -> bool:
         """Helper to loosely validate python/pandas types against contract definitions."""
-        if expected_type == "string":
-            return isinstance(val, str)
-        if expected_type == "integer":
-            # numpy types can be tricky
-            return isinstance(val, (int, np.integer))
-        if expected_type == "number":
-            return isinstance(val, (int, float, np.number))
-        if expected_type == "boolean":
-            return isinstance(val, (bool, np.bool_))
-        if expected_type in ("date", "datetime"):
-            # If it's a pandas timestamp, it's valid. If it's a string, it must be parseable.
-            if isinstance(val, (pd.Timestamp, np.datetime64)):
-                return True
-            if isinstance(val, str):
-                try:
-                    pd.to_datetime(val)
-                    return True
-                except ValueError:
-                    return False
-            return False
-        return True
+        return is_type(val, expected_type)
 
     def _build_error(self, row, field, rule, msg, actual, expected) -> ValidationErrorMetadata:
         return ValidationErrorMetadata(

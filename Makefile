@@ -2,7 +2,7 @@
 # Makefile — Automated Data Pipeline & BI Architecture
 # ============================================================
 
-.PHONY: help setup install run test lint clean docker-up docker-down db-setup validate
+.PHONY: help setup install install-dev install-snowflake env validate docker-up docker-down db-setup run run-manual api test test-unit test-integration test-cov clean warehouse bi-export report outcome demo
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -50,6 +50,22 @@ run: ## Run the pipeline
 
 run-manual: ## Run pipeline manually
 	python orchestration/jobs/manual_pipeline.py
+
+warehouse: ## Load curated data into the warehouse star schema
+	python scripts/load_warehouse.py
+
+# --- Business Intelligence ---
+
+bi-export: ## Export analytical views and monitoring data to dashboard/exports
+	python scripts/export_bi_data.py
+
+report: ## Generate the standalone project outcome HTML report
+	python scripts/generate_project_report.py
+
+outcome: bi-export report ## Build all BI deliverables (exports + report)
+
+demo: ## Run the full showcase (pipeline, warehouse, BI assets, web server)
+	python scripts/showcase.py
 
 # --- API ---
 

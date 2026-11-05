@@ -36,6 +36,13 @@ pytest-cov>=4.1.0
 # --- Utilities ---
 python-dateutil>=2.8.0
 
+# --- Automation & Scheduling ---
+apscheduler>=3.10.0
+watchdog>=3.0.0
+
+# --- Parquet Support ---
+pyarrow>=14.0.0
+
 # --- Snowflake (Optional — install separately if needed) ---
 # snowflake-connector-python>=3.0.0
 # snowflake-sqlalchemy>=1.5.0

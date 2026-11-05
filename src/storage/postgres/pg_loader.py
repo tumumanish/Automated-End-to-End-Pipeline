@@ -14,7 +14,13 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
-from src.utils.config import get_connection_string
+from src.storage.postgres.connection import get_engine, is_sqlite_mode
+from src.storage.postgres.queries import (
+    count_statement,
+    qualified_name,
+    table_exists_statement,
+    truncate_statement,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger("storage.postgres")
@@ -22,28 +28,37 @@ logger = get_logger("storage.postgres")
 
 class PostgresLoader:
     """
-    Reusable PostgreSQL loader for warehouse ETL operations.
-
-    Creates a SQLAlchemy engine on first use (lazy) and provides
-    convenience methods for common warehouse loading patterns.
+    Reusable bulk loader for warehouse ETL operations.
+    Supports both PostgreSQL and SQLite (fallback / local mode) seamlessly.
     """
 
     def __init__(self, connection_string: Optional[str] = None):
-        self._conn_str = connection_string or get_connection_string()
+        self._custom_conn_str = connection_string
         self._engine: Optional[Engine] = None
 
     # ── Engine lifecycle ────────────────────────────────────
 
     @property
     def engine(self) -> Engine:
-        """Lazily create and return the SQLAlchemy engine."""
+        """Lazily obtain and return the SQLAlchemy engine."""
         if self._engine is None:
-            self._engine = create_engine(self._conn_str)
+            if self._custom_conn_str:
+                self._engine = create_engine(self._custom_conn_str)
+            else:
+                self._engine = get_engine()
         return self._engine
+
+    @property
+    def is_sqlite(self) -> bool:
+        """Return True if using SQLite dialect."""
+        try:
+            return self.engine.dialect.name == "sqlite"
+        except Exception:
+            return is_sqlite_mode()
 
     def dispose(self) -> None:
         """Dispose of the engine connection pool."""
-        if self._engine is not None:
+        if self._engine is not None and self._custom_conn_str:
             self._engine.dispose()
             self._engine = None
 
@@ -74,12 +89,15 @@ class PostgresLoader:
             logger.warning("Empty DataFrame — skipping load to %s.%s", schema, table_name)
             return 0
 
+        # Use chunksize to prevent SQLite "too many SQL variables" limit (max 999 or 32766)
+        chunksize = 500 if self.is_sqlite else 1000
         df.to_sql(
             name=table_name,
             con=self.engine,
             schema=schema,
             if_exists=if_exists,
             index=index,
+            chunksize=chunksize,
             method="multi",
         )
         logger.info(
@@ -90,9 +108,12 @@ class PostgresLoader:
 
     def truncate_table(self, table_name: str, schema: str) -> None:
         """Truncate a table (remove all rows, keep structure)."""
-        fqn = f"{schema}.{table_name}"
+        fqn = qualified_name(schema, table_name)
         with self.engine.connect() as conn:
-            conn.execute(text(f"TRUNCATE TABLE {fqn} RESTART IDENTITY CASCADE"))
+            if self.is_sqlite:
+                conn.execute(text(f"DELETE FROM {fqn}"))
+            else:
+                conn.execute(text(truncate_statement(schema, table_name)))
             conn.commit()
         logger.info("Truncated %s", fqn)
 
@@ -109,22 +130,25 @@ class PostgresLoader:
 
     def table_row_count(self, table_name: str, schema: str) -> int:
         """Return the row count of a table."""
-        fqn = f"{schema}.{table_name}"
         with self.engine.connect() as conn:
-            result = conn.execute(text(f"SELECT COUNT(*) FROM {fqn}"))
-            return result.scalar()
+            result = conn.execute(text(count_statement(schema, table_name)))
+            return result.scalar() or 0
 
     def table_exists(self, table_name: str, schema: str) -> bool:
         """Check whether a table exists in the given schema."""
-        sql = """
-            SELECT EXISTS (
-                SELECT 1 FROM information_schema.tables
-                WHERE table_schema = :schema AND table_name = :table
-            )
-        """
         with self.engine.connect() as conn:
-            result = conn.execute(text(sql), {"schema": schema, "table": table_name})
-            return result.scalar()
+            if self.is_sqlite:
+                try:
+                    conn.execute(text(f"SELECT 1 FROM {schema}.{table_name} LIMIT 0"))
+                    return True
+                except Exception:
+                    return False
+            else:
+                result = conn.execute(
+                    text(table_exists_statement()),
+                    {"schema": schema, "table": table_name},
+                )
+                return bool(result.scalar())
 
     def get_max_key(self, table_name: str, schema: str, key_column: str) -> int:
         """Return the current maximum surrogate key value, or 0 if table is empty."""

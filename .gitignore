@@ -91,6 +91,19 @@ data/archive/*
 !data/archive/.gitkeep
 
 # ------------------------------------------------------------
+# Generated warehouse and BI artifacts
+# (rebuilt by scripts/setup_database.py, export_bi_data.py, and
+#  generate_project_report.py)
+# ------------------------------------------------------------
+data/warehouse/*.db
+data/warehouse/*.db-*
+dashboard/exports/*.csv
+dashboard/exports/*.json
+dashboard/reports/*.html
+!dashboard/exports/.gitkeep
+!dashboard/reports/.gitkeep
+
+# ------------------------------------------------------------
 # Docker
 # ------------------------------------------------------------
 docker-data/

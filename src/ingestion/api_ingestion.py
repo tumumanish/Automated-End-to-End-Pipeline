@@ -10,6 +10,7 @@ import pandas as pd
 from src.errors.exceptions import IngestionError
 from src.ingestion.base import BaseIngestion
 from src.utils.logger import get_logger
+from src.utils.retry import call_with_retry
 
 logger = get_logger("pipeline")
 
@@ -25,6 +26,9 @@ class APIIngestion(BaseIngestion):
         timeout: Request timeout in seconds (default: 30).
         headers: Optional HTTP headers.
         records_key: JSON key that contains the records list (default: 'records').
+        max_retries: Retries after the initial request for transient network
+            errors (default: 2).
+        retry_backoff: Initial backoff delay in seconds (default: 0.5).
     """
 
     def __init__(
@@ -33,11 +37,15 @@ class APIIngestion(BaseIngestion):
         timeout: int = 30,
         headers: dict | None = None,
         records_key: str = "records",
+        max_retries: int = 2,
+        retry_backoff: float = 0.5,
     ):
         self._url = url
         self._timeout = timeout
         self._headers = headers or {}
         self._records_key = records_key
+        self._max_retries = max(0, max_retries)
+        self._retry_backoff = max(0.0, retry_backoff)
 
     @property
     def source_type(self) -> str:
@@ -59,12 +67,20 @@ class APIIngestion(BaseIngestion):
         """
         logger.info("Extracting from API: %s", self._url)
 
-        # --- HTTP request ---
+        # --- HTTP request (retry transient network failures) ---
         try:
-            response = requests.get(
-                self._url,
-                headers=self._headers,
-                timeout=self._timeout,
+            response = call_with_retry(
+                lambda: requests.get(
+                    self._url,
+                    headers=self._headers,
+                    timeout=self._timeout,
+                ),
+                max_attempts=self._max_retries + 1,
+                base_delay=self._retry_backoff,
+                exceptions=(
+                    requests.exceptions.Timeout,
+                    requests.exceptions.ConnectionError,
+                ),
             )
         except requests.exceptions.Timeout:
             raise IngestionError(

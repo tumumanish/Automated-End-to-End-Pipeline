@@ -32,13 +32,36 @@ class PipelineExecutionMetric:
         return asdict(self)
 
 
+import json
+from pathlib import Path
+from src.utils.file_utils import get_project_root
+
+
 class PipelineMetricsTracker:
     """
     Tracks and aggregates pipeline execution metrics across runs.
     """
 
-    def __init__(self):
+    def __init__(self, load_persisted: bool = False):
+        self._load_persisted = load_persisted
         self._executions: List[PipelineExecutionMetric] = []
+
+    def _load_persisted_metrics(self) -> List[PipelineExecutionMetric]:
+        try:
+            log_dir = get_project_root() / "logs" / "pipeline"
+            if not log_dir.exists():
+                return []
+            metrics = []
+            for f in sorted(log_dir.glob("*_metrics.json"), key=lambda p: p.stat().st_mtime):
+                try:
+                    with open(f, "r", encoding="utf-8") as fp:
+                        data = json.load(fp)
+                    metrics.append(PipelineExecutionMetric(**data))
+                except Exception:
+                    continue
+            return metrics
+        except Exception:
+            return []
 
     def record_execution(
         self,
@@ -84,9 +107,20 @@ class PipelineMetricsTracker:
         self,
         pipeline_name: Optional[str] = None,
         limit: int = 50,
+        include_persisted: Optional[bool] = None,
     ) -> List[PipelineExecutionMetric]:
         """Get recent pipeline executions, optionally filtered by name."""
-        results = self._executions
+        should_load = self._load_persisted if include_persisted is None else include_persisted
+        all_metrics = list(self._executions)
+        if should_load:
+            persisted = self._load_persisted_metrics()
+            seen = {e.execution_id for e in all_metrics}
+            for p in persisted:
+                if p.execution_id not in seen:
+                    all_metrics.append(p)
+                    seen.add(p.execution_id)
+
+        results = all_metrics
         if pipeline_name:
             results = [e for e in results if e.pipeline_name == pipeline_name]
         return list(reversed(results[-limit:]))

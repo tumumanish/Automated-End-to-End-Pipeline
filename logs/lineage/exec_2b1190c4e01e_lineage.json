@@ -1,0 +1,93 @@
+{
+  "batch_id": "exec_2b1190c4e01e",
+  "pipeline": "eltl_plus_plus",
+  "dataset": "transactions",
+  "event_count": 5,
+  "events": [
+    {
+      "event_id": "evt_aafeb096fbde",
+      "batch_id": "exec_2b1190c4e01e",
+      "pipeline_name": "eltl_plus_plus",
+      "stage": "extract",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 0,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:41:53.993466+00:00",
+      "metadata": {
+        "source_type": "csv",
+        "source_name": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\tests\\fixtures\\sample_transactions.csv"
+      }
+    },
+    {
+      "event_id": "evt_d47929308d29",
+      "batch_id": "exec_2b1190c4e01e",
+      "pipeline_name": "eltl_plus_plus",
+      "stage": "raw_load",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:41:53.996832+00:00",
+      "metadata": {
+        "raw_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\raw\\csv\\transactions\\exec_2b1190c4e01e.csv",
+        "note": "Immutable raw load \u2014 no validation applied yet"
+      }
+    },
+    {
+      "event_id": "evt_469cff90d4f4",
+      "batch_id": "exec_2b1190c4e01e",
+      "pipeline_name": "eltl_plus_plus",
+      "stage": "managed_raw",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:41:54.067189+00:00",
+      "metadata": {
+        "cleaned": true,
+        "valid": 250,
+        "invalid": 0,
+        "validation_status": "PASS"
+      }
+    },
+    {
+      "event_id": "evt_a9d6a88d851c",
+      "batch_id": "exec_2b1190c4e01e",
+      "pipeline_name": "eltl_plus_plus",
+      "stage": "transformation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:41:54.089803+00:00",
+      "metadata": {
+        "transformations": [
+          "cleaning",
+          "normalization",
+          "deduplication",
+          "business_rules"
+        ]
+      }
+    },
+    {
+      "event_id": "evt_41688c1e8d16",
+      "batch_id": "exec_2b1190c4e01e",
+      "pipeline_name": "eltl_plus_plus",
+      "stage": "curated_semantic",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:41:54.102838+00:00",
+      "metadata": {
+        "curated_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\curated\\transactions\\exec_2b1190c4e01e.parquet"
+      }
+    }
+  ]
+}

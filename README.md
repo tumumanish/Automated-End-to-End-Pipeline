@@ -187,12 +187,26 @@ The warehouse uses dimensional modeling with star schema:
 
 ## 13. Business Intelligence
 
-| Tool       | Purpose                                   |
-|------------|-------------------------------------------|
-| Power BI   | Interactive dashboards and reports        |
-| Tableau    | Advanced analytics and visualizations     |
+| Tool / artifact | Purpose |
+|-----------------|---------|
+| Power BI | Interactive dashboards and reports |
+| Tableau | Advanced analytics and visualizations |
+| BI exports (`dashboard/exports/`) | Tool-agnostic CSV extracts, KPI summary, and manifest |
+| Outcome report (`dashboard/reports/`) | Standalone HTML report for project review |
 
-BI tools consume curated analytical datasets from the semantic layer — not raw tables.
+BI tools consume curated analytical datasets from the semantic layer — not raw
+tables. The repository generates portable BI assets so the outcome is
+reproducible without a live database or proprietary workbook:
+
+```powershell
+python scripts/export_bi_data.py
+python scripts/generate_project_report.py --open
+```
+
+- Report: `dashboard/reports/project_outcome.html`
+- API: `/reports/project-outcome`, `/api/v1/bi/exports`, `/exports/{filename}`
+- Setup guides: `dashboard/README.md`, `dashboard/powerbi/`, `dashboard/tableau/`
+- Outcome process: `docs/project/demo_guide.md`
 
 ---
 
@@ -226,9 +240,9 @@ automated-data-pipeline-bi/
 ├── sql/             — SQL scripts for PostgreSQL and Snowflake
 ├── orchestration/   — Pipeline jobs and scheduling
 ├── api/             — REST API for pipeline monitoring
-├── dashboard/       — BI documentation (Power BI, Tableau)
+├── dashboard/       — BI documentation, web dashboard, CSV exports, HTML report
 ├── tests/           — Unit, integration, and fixture tests
-├── scripts/         — Utility scripts (setup, run, validate)
+├── scripts/         — Utility scripts (setup, run, warehouse, BI, validate)
 ├── logs/            — Pipeline, validation, lineage, and error logs
 ├── notebooks/       — Jupyter notebooks for exploration and analysis
 ├── docs/            — Architecture, database, pipeline, and project documentation

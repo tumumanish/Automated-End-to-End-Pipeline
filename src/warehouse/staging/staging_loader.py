@@ -21,6 +21,7 @@ from src.warehouse.dimensions.dim_customer import CustomerDimensionLoader
 from src.warehouse.dimensions.dim_product import ProductDimensionLoader
 from src.warehouse.dimensions.dim_location import LocationDimensionLoader
 from src.warehouse.facts.fact_transactions import FactTransactionsLoader
+from src.warehouse.marts.sales_mart import SalesMartBuilder
 
 logger = get_logger("warehouse.staging")
 
@@ -42,6 +43,7 @@ class StagingLoader:
         self._dim_product = ProductDimensionLoader(self._loader)
         self._dim_location = LocationDimensionLoader(self._loader)
         self._fact_txn = FactTransactionsLoader(self._loader)
+        self._sales_mart = SalesMartBuilder(self._loader)
 
     def read_curated_data(
         self,
@@ -170,6 +172,17 @@ class StagingLoader:
         # 5. Load facts (with surrogate key resolution)
         fact_stats = self._fact_txn.load(df, effective_batch)
 
+        # 6. Build analytical marts from star schema
+        mart_stats = {}
+        try:
+            logger.info("Building analytical marts...")
+            marts = self._sales_mart.build_all()
+            mart_stats = {name: len(mart_df) for name, mart_df in marts.items()}
+            logger.info("Marts built: %s", mart_stats)
+        except Exception as exc:
+            logger.warning("Mart building failed (non-critical): %s", exc)
+            mart_stats = {"error": str(exc)}
+
         summary = {
             "status": "SUCCESS",
             "records_staged": staged,
@@ -178,6 +191,7 @@ class StagingLoader:
             "products": prod_stats,
             "locations": loc_stats,
             "facts": fact_stats,
+            "marts": mart_stats,
         }
 
         logger.info("=" * 60)

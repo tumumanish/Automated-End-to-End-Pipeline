@@ -10,6 +10,12 @@ import pandas as pd
 from sqlalchemy import text
 
 from src.storage.postgres.connection import get_engine, get_connection
+from src.storage.postgres.queries import (
+    COMPLETE_BATCH,
+    CREATE_BATCH,
+    FAIL_BATCH,
+    INSERT_AUDIT_EVENT,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger("pipeline")
@@ -74,13 +80,7 @@ def create_batch_record(
         source_name: Source path or URL.
         dataset_name: Logical dataset name.
     """
-    sql = text("""
-        INSERT INTO metadata.ingestion_batches
-            (batch_id, source_type, source_name, dataset_name, status)
-        VALUES
-            (:batch_id, :source_type, :source_name, :dataset_name, 'RUNNING')
-        ON CONFLICT (batch_id) DO NOTHING
-    """)
+    sql = text(CREATE_BATCH)
     with get_connection() as conn:
         conn.execute(sql, {
             "batch_id": batch_id,
@@ -104,14 +104,7 @@ def complete_batch(
         record_count: Total records processed.
         file_path: Path to the raw file stored.
     """
-    sql = text("""
-        UPDATE metadata.ingestion_batches
-        SET status       = 'SUCCESS',
-            completed_at = :completed_at,
-            record_count = :record_count,
-            file_path    = :file_path
-        WHERE batch_id = :batch_id
-    """)
+    sql = text(COMPLETE_BATCH)
     with get_connection() as conn:
         conn.execute(sql, {
             "batch_id": batch_id,
@@ -130,13 +123,7 @@ def fail_batch(batch_id: str, error_message: str) -> None:
         batch_id: Batch identifier.
         error_message: Description of the failure.
     """
-    sql = text("""
-        UPDATE metadata.ingestion_batches
-        SET status        = 'FAILED',
-            completed_at  = :completed_at,
-            error_message = :error_message
-        WHERE batch_id = :batch_id
-    """)
+    sql = text(FAIL_BATCH)
     with get_connection() as conn:
         conn.execute(sql, {
             "batch_id": batch_id,
@@ -163,12 +150,7 @@ def insert_audit_event(
         message: Optional descriptive message.
         record_count: Record count at this stage.
     """
-    sql = text("""
-        INSERT INTO metadata.ingestion_audit
-            (batch_id, stage, event_type, message, record_count)
-        VALUES
-            (:batch_id, :stage, :event_type, :message, :record_count)
-    """)
+    sql = text(INSERT_AUDIT_EVENT)
     with get_connection() as conn:
         conn.execute(sql, {
             "batch_id": batch_id,

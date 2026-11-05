@@ -48,5 +48,48 @@
       "nullable": false
     }
   },
-  "rules": []
+  "rules": [
+    {
+      "name": "positive_quantity",
+      "description": "Quantity must be a positive integer",
+      "field": "quantity",
+      "condition": "quantity > 0",
+      "severity": "hard"
+    },
+    {
+      "name": "total_amount_consistency",
+      "description": "Total amount should approximately match quantity * unit_price",
+      "field": "total_amount",
+      "condition": "abs(total_amount - quantity * unit_price) <= 0.01 * total_amount",
+      "severity": "soft"
+    },
+    {
+      "name": "valid_product_prefix",
+      "description": "Product ID should follow the PROD-XXXX naming convention",
+      "field": "product_id",
+      "condition": "product_id starts with PROD-",
+      "severity": "soft"
+    },
+    {
+      "name": "valid_customer_prefix",
+      "description": "Customer ID should follow the CUST-XXXX naming convention",
+      "field": "customer_id",
+      "condition": "customer_id starts with CUST-",
+      "severity": "soft"
+    },
+    {
+      "name": "reasonable_unit_price",
+      "description": "Unit price should not exceed $100,000",
+      "field": "unit_price",
+      "condition": "unit_price <= 100000",
+      "severity": "hard"
+    },
+    {
+      "name": "reasonable_quantity",
+      "description": "Quantity should not exceed 10,000 units per transaction",
+      "field": "quantity",
+      "condition": "quantity <= 10000",
+      "severity": "hard"
+    }
+  ]
 }

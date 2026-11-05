@@ -5,6 +5,16 @@
 > **B.Tech CSE (Data Science) — Major Project | Batch 19**
 > **Document Version:** 1.0 | **Date:** September 28, 2026
 
+> [!NOTE]
+> **Status update (October 27, 2026):** Phases 1–10 are implemented, including
+> the BI layer as portable deliverables (CSV extracts, KPI summary, and a
+> standalone HTML outcome report) plus Power BI / Tableau connection guides.
+> Phase 11 production hardening is largely complete; see the checklist in
+> [`docs/project/implementation.md`](docs/project/implementation.md). The
+> per-phase status markers below preserve the original audit and are stale in
+> places. For the repeatable outcome demonstration, see
+> [`docs/project/demo_guide.md`](docs/project/demo_guide.md).
+
 ---
 
 ## Table of Contents

@@ -1,0 +1,211 @@
+{
+  "batch_id": "exec_044e6afebaaf",
+  "pipeline": "etlt_plus_plus",
+  "dataset": "transactions",
+  "event_count": 6,
+  "events": [
+    {
+      "event_id": "evt_267a49098210",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "extract",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 0,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:21.968719+00:00",
+      "metadata": {
+        "source_type": "csv",
+        "source_name": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\tests\\fixtures\\sample_transactions.csv",
+        "schema_snapshot": {
+          "dataset_name": "transactions",
+          "stage": "extract",
+          "row_count": 250,
+          "column_count": 8,
+          "columns": [
+            "transaction_id",
+            "customer_id",
+            "product_id",
+            "transaction_date",
+            "quantity",
+            "unit_price",
+            "total_amount",
+            "location"
+          ],
+          "column_types": {
+            "transaction_id": "object",
+            "customer_id": "object",
+            "product_id": "object",
+            "transaction_date": "object",
+            "quantity": "int64",
+            "unit_price": "float64",
+            "total_amount": "float64",
+            "location": "object"
+          },
+          "null_counts": {
+            "transaction_id": 0,
+            "customer_id": 0,
+            "product_id": 0,
+            "transaction_date": 0,
+            "quantity": 0,
+            "unit_price": 0,
+            "total_amount": 0,
+            "location": 0
+          },
+          "memory_usage_bytes": 80466,
+          "timestamp": "2026-10-27T12:31:21.968678+00:00"
+        }
+      }
+    },
+    {
+      "event_id": "evt_b0d04e2a66f5",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "raw_storage",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:21.972184+00:00",
+      "metadata": {
+        "raw_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\raw\\csv\\transactions\\exec_044e6afebaaf.csv"
+      }
+    },
+    {
+      "event_id": "evt_5e32824ecc67",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "versioning",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:21.988104+00:00",
+      "metadata": {
+        "new_records": 250,
+        "changed_records": 0,
+        "unchanged_records": 0
+      }
+    },
+    {
+      "event_id": "evt_aa287064c930",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "contract_validation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:22.062472+00:00",
+      "metadata": {
+        "valid": 250,
+        "invalid": 0,
+        "status": "PASS"
+      }
+    },
+    {
+      "event_id": "evt_a4d460d1961a",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "business_transformation",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:22.072013+00:00",
+      "metadata": {
+        "transformations": [
+          "cleaning",
+          "normalization",
+          "deduplication",
+          "business_rules",
+          "enrichment",
+          "type_conversion"
+        ],
+        "schema_snapshot": {
+          "dataset_name": "transactions",
+          "stage": "business_transformation",
+          "row_count": 250,
+          "column_count": 16,
+          "columns": [
+            "transaction_id",
+            "customer_id",
+            "product_id",
+            "transaction_date",
+            "quantity",
+            "unit_price",
+            "total_amount",
+            "location",
+            "calculated_total",
+            "is_high_value",
+            "needs_location_review",
+            "discount_amount",
+            "has_discount",
+            "transaction_year",
+            "transaction_month",
+            "transaction_day_of_week"
+          ],
+          "column_types": {
+            "transaction_id": "object",
+            "customer_id": "object",
+            "product_id": "object",
+            "transaction_date": "datetime64[ns]",
+            "quantity": "Int64",
+            "unit_price": "float64",
+            "total_amount": "float64",
+            "location": "object",
+            "calculated_total": "float64",
+            "is_high_value": "bool",
+            "needs_location_review": "bool",
+            "discount_amount": "float64",
+            "has_discount": "bool",
+            "transaction_year": "int32",
+            "transaction_month": "int32",
+            "transaction_day_of_week": "object"
+          },
+          "null_counts": {
+            "transaction_id": 0,
+            "customer_id": 0,
+            "product_id": 0,
+            "transaction_date": 0,
+            "quantity": 0,
+            "unit_price": 0,
+            "total_amount": 0,
+            "location": 0,
+            "calculated_total": 0,
+            "is_high_value": 0,
+            "needs_location_review": 0,
+            "discount_amount": 0,
+            "has_discount": 0,
+            "transaction_year": 0,
+            "transaction_month": 0,
+            "transaction_day_of_week": 0
+          },
+          "memory_usage_bytes": 90606,
+          "timestamp": "2026-10-27T12:31:22.071961+00:00"
+        }
+      }
+    },
+    {
+      "event_id": "evt_ba261bc7ce4e",
+      "batch_id": "exec_044e6afebaaf",
+      "pipeline_name": "etlt_plus_plus",
+      "stage": "curated_storage",
+      "source_system": "csv",
+      "dataset_name": "transactions",
+      "contract_version": "1.0",
+      "input_record_count": 250,
+      "output_record_count": 250,
+      "timestamp": "2026-10-27T12:31:22.075738+00:00",
+      "metadata": {
+        "curated_path": "D:\\Major_Project_batch19\\Automated-End-to-End-Pipeline\\data\\curated\\transactions\\exec_044e6afebaaf.parquet",
+        "format": "parquet"
+      }
+    }
+  ]
+}

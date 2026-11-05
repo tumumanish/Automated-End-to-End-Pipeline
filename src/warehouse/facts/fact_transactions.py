@@ -36,26 +36,30 @@ class FactTransactionsLoader:
         try:
             dim = self._loader.query(
                 "SELECT customer_key, customer_id FROM warehouse.dim_customer "
-                "WHERE is_current = TRUE"
+                "WHERE (is_current = 1 OR is_current = TRUE)"
             )
         except Exception:
             dim = pd.DataFrame(columns=["customer_key", "customer_id"])
 
-        key_map = dict(zip(dim["customer_id"], dim["customer_key"]))
-        return df["customer_id"].map(key_map)
+        if not dim.empty and "customer_id" in dim.columns and "customer_key" in dim.columns:
+            key_map = dict(zip(dim["customer_id"], dim["customer_key"]))
+            return df["customer_id"].map(key_map)
+        return pd.Series(index=df.index, dtype=object)
 
     def _resolve_product_keys(self, df: pd.DataFrame) -> pd.Series:
         """Look up current product_key for each product_id."""
         try:
             dim = self._loader.query(
                 "SELECT product_key, product_id FROM warehouse.dim_product "
-                "WHERE is_current = TRUE"
+                "WHERE (is_current = 1 OR is_current = TRUE)"
             )
         except Exception:
             dim = pd.DataFrame(columns=["product_key", "product_id"])
 
-        key_map = dict(zip(dim["product_id"], dim["product_key"]))
-        return df["product_id"].map(key_map)
+        if not dim.empty and "product_id" in dim.columns and "product_key" in dim.columns:
+            key_map = dict(zip(dim["product_id"], dim["product_key"]))
+            return df["product_id"].map(key_map)
+        return pd.Series(index=df.index, dtype=object)
 
     def _resolve_location_keys(self, df: pd.DataFrame) -> pd.Series:
         """Look up location_key for each location name."""
@@ -66,8 +70,10 @@ class FactTransactionsLoader:
         except Exception:
             dim = pd.DataFrame(columns=["location_key", "location_name"])
 
-        key_map = dict(zip(dim["location_name"], dim["location_key"]))
-        return df["location"].map(key_map)
+        if not dim.empty and "location_name" in dim.columns and "location_key" in dim.columns:
+            key_map = dict(zip(dim["location_name"], dim["location_key"]))
+            return df["location"].map(key_map)
+        return pd.Series(index=df.index, dtype=object)
 
     def load(self, df: pd.DataFrame, batch_id: str) -> dict:
         """
@@ -112,6 +118,9 @@ class FactTransactionsLoader:
         if fact_df.empty:
             logger.warning("No fact rows to load after surrogate key resolution")
             return {"loaded": 0, "skipped": skipped}
+
+        max_key = self._loader.get_max_key("fact_transactions", "warehouse", "transaction_key")
+        fact_df["transaction_key"] = range(max_key + 1, max_key + 1 + len(fact_df))
 
         loaded = self._loader.load_dataframe(fact_df, "fact_transactions", "warehouse")
         logger.info(

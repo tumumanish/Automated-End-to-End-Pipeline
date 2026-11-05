@@ -62,9 +62,16 @@ def get_quarantine_detail(batch_id: str):
 
 @router.get("/quality/alerts")
 def get_alerts(severity: str = None, limit: int = Query(default=20, ge=1, le=100)):
-    """Get recent quality alerts."""
-    from src.monitoring.alert_manager import AlertManager
+    """Get recent quality alerts from database or logs."""
+    try:
+        from src.monitoring.db_writer import MonitoringDBWriter
+        db_alerts = MonitoringDBWriter().get_recent_alerts(severity=severity, limit=limit)
+        if db_alerts:
+            return {"alerts": db_alerts, "count": len(db_alerts)}
+    except Exception:
+        pass
 
+    from src.monitoring.alert_manager import AlertManager
     mgr = AlertManager()
     alerts = mgr.get_alerts(severity=severity)
     alerts = alerts[-limit:]

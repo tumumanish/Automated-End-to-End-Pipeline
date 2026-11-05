@@ -8,4 +8,5 @@ Modules:
     - timestamps: Timestamp generation and formatting
     - file_utils: File I/O utilities
     - validation_utils: Common validation helper functions
+    - retry: Retry helpers with exponential backoff
 """

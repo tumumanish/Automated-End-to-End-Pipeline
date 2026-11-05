@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 import os
 from pathlib import Path
@@ -9,6 +10,7 @@ def test_etlt_plus_plus_pipeline_valid_data():
     
     # Path to valid transactions
     csv_path = get_project_root() / "tests" / "fixtures" / "sample_transactions.csv"
+    expected_rows = len(pd.read_csv(csv_path))
     
     result = runner.run(
         pipeline_name="etlt_plus_plus",
@@ -20,11 +22,11 @@ def test_etlt_plus_plus_pipeline_valid_data():
     
     assert result["status"] == "SUCCESS"
     details = result["details"]
-    assert details["extracted"] == 100
-    assert details["valid_records"] == 100
+    assert details["extracted"] == expected_rows
+    assert details["valid_records"] == expected_rows
     assert details["validation_status"] == "PASS"
-    # Depending on duplicates in the sample, transformed_records might be <= 100
-    assert details["transformed_records"] <= 100 
+    # Deduplication may drop exact/business-key duplicates.
+    assert details["transformed_records"] <= expected_rows
     assert details["curated_path"] is not None
     
     # Verify curated file exists

@@ -69,12 +69,27 @@ def run_pipeline(name: str, source: str, dataset: str = "transactions", contract
 
 @router.get("/pipelines/executions/recent")
 def get_recent_executions(pipeline_name: str = None, limit: int = 20):
-    """Get recent pipeline execution metrics."""
-    from src.monitoring.pipeline_metrics import PipelineMetricsTracker
+    """Get recent pipeline execution metrics from database or logs."""
+    try:
+        from src.monitoring.db_writer import MonitoringDBWriter
+        writer = MonitoringDBWriter()
+        db_executions = writer.get_recent_executions(limit=limit)
+        if db_executions:
+            if pipeline_name:
+                db_executions = [e for e in db_executions if e.get("pipeline_name") == pipeline_name]
+            return {
+                "executions": db_executions,
+                "count": len(db_executions),
+                "source": "database",
+            }
+    except Exception:
+        pass
 
-    tracker = PipelineMetricsTracker()
+    from src.monitoring.pipeline_metrics import PipelineMetricsTracker
+    tracker = PipelineMetricsTracker(load_persisted=True)
     executions = tracker.get_executions(pipeline_name=pipeline_name, limit=limit)
     return {
         "executions": [e.to_dict() for e in executions],
         "count": len(executions),
+        "source": "file_cache",
     }

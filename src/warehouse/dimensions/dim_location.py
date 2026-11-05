@@ -124,6 +124,9 @@ class LocationDimensionLoader:
                 stats["new"] += 1
 
         if new_rows:
+            max_key = self._loader.get_max_key("dim_location", "warehouse", "location_key")
+            for idx, r in enumerate(new_rows):
+                r["location_key"] = max_key + idx + 1
             df_new = pd.DataFrame(new_rows)
             self._loader.load_dataframe(df_new, "dim_location", "warehouse")
 

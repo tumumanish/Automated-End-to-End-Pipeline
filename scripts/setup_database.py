@@ -2,8 +2,9 @@
 """
 Script: setup_database
 Purpose:
-    Connect to PostgreSQL and create required schemas and Phase 2 tables.
-    Safe to execute multiple times (idempotent SQL).
+    Connect to the warehouse (PostgreSQL, or the SQLite fallback) and create
+    all required schemas and tables. Safe to execute multiple times
+    (idempotent SQL).
 
 Usage:
     python scripts/setup_database.py
@@ -18,7 +19,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.utils.config import get_connection_string
+from sqlalchemy import text
+from src.storage.postgres.connection import get_engine, is_sqlite_mode
+from src.storage.sql_utils import adapt_sql_for_sqlite, split_sql_statements
 from src.utils.logger import setup_logging, get_logger
 
 setup_logging()
@@ -27,7 +30,6 @@ logger = get_logger("pipeline")
 SQL_DIR = PROJECT_ROOT / "sql" / "postgres"
 
 # SQL files to execute in order
-# NOTE [SHARED]: Person B will add 04, 05, 06 between 03 and 07.
 SQL_FILES = [
     "01_create_schemas.sql",
     "02_create_raw_tables.sql",
@@ -41,26 +43,37 @@ SQL_FILES = [
 ]
 
 
-def run_sql_file(conn, filepath: Path) -> None:
+def run_sql_file(conn, filepath: Path, is_sqlite: bool = False) -> None:
     """Execute a SQL file against the given connection."""
     sql = filepath.read_text(encoding="utf-8")
-    # Execute each statement separately (split on semicolons)
-    from sqlalchemy import text
-    statements = [s.strip() for s in sql.split(";") if s.strip() and not s.strip().startswith("--")]
+    statements = split_sql_statements(sql)
     for stmt in statements:
-        conn.execute(text(stmt))
+        if is_sqlite:
+            stmt = adapt_sql_for_sqlite(stmt)
+            if not stmt:
+                continue
+        try:
+            conn.execute(text(stmt))
+        except Exception as exc:
+            message = str(exc).lower()
+            # SQLite does not support CREATE OR REPLACE or repeated indexes.
+            if is_sqlite and ("already exists" in message or "syntax error" in message):
+                logger.debug("Skipping SQLite statement (%s): %s", exc, stmt[:120])
+                continue
+            raise
     conn.commit()
 
 
 def main() -> None:
-    from sqlalchemy import create_engine
-
-    conn_str = get_connection_string()
-    print(f"Connecting to PostgreSQL...")
+    print("Connecting to Data Warehouse Engine...")
     logger.info("Database setup started.")
 
     try:
-        engine = create_engine(conn_str)
+        engine = get_engine()
+        is_sqlite = engine.dialect.name == "sqlite" or is_sqlite_mode()
+        db_type = "SQLite (Local Offline Mode)" if is_sqlite else "PostgreSQL Server"
+        print(f"  Target Warehouse Engine: {db_type}")
+
         with engine.connect() as conn:
             for sql_file in SQL_FILES:
                 filepath = SQL_DIR / sql_file
@@ -70,11 +83,10 @@ def main() -> None:
                     continue
 
                 print(f"  RUN   {sql_file} ... ", end="")
-                run_sql_file(conn, filepath)
+                run_sql_file(conn, filepath, is_sqlite=is_sqlite)
                 print("OK")
                 logger.info("Executed: %s", sql_file)
 
-        engine.dispose()
         print("\nDatabase setup completed successfully.")
         logger.info("Database setup completed.")
 

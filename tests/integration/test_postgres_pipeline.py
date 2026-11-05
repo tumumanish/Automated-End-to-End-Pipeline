@@ -16,10 +16,17 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def _postgres_available() -> bool:
-    """Check if PostgreSQL is reachable."""
+    """
+    Check if a real PostgreSQL server is reachable.
+
+    The storage layer transparently falls back to SQLite when PostgreSQL is
+    unavailable. These tests exercise PostgreSQL-specific tables, so they
+    must be skipped in SQLite fallback mode rather than fail misleadingly.
+    """
     try:
-        from src.storage.postgres.connection import test_connection
-        return test_connection()
+        from src.storage.postgres.connection import is_sqlite_mode, test_connection
+
+        return test_connection() and not is_sqlite_mode()
     except Exception:
         return False
 

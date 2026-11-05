@@ -27,6 +27,7 @@ class DataEnricher:
             DataFrame with additional computed columns.
         """
         df = df.copy()
+        original_col_count = len(df.columns)
 
         if dataset_name == "transactions":
             # Derive discount column if unit_price and total_amount exist
@@ -42,9 +43,10 @@ class DataEnricher:
                 df["transaction_month"] = dt_col.dt.month
                 df["transaction_day_of_week"] = dt_col.dt.day_name()
 
+        new_columns_added = len(df.columns) - original_col_count
         logger.info(
             "Enrichment applied | dataset=%s new_columns=%d",
-            dataset_name, len(df.columns) - len(df.columns),
+            dataset_name, new_columns_added,
         )
         return df
 

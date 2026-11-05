@@ -2,36 +2,128 @@
 
 ## Overview
 
-Tableau dashboards consume curated analytical datasets from the warehouse semantic layer.
+Tableau consumes curated analytical data — never raw or staging tables. Two
+connection paths are supported:
 
-## Setup (To Be Configured in Phase 2)
+| Path | When to use | Data source |
+|------|-------------|-------------|
+| **CSV extracts** (recommended) | Offline review, SQLite fallback, no PostgreSQL server | `dashboard/exports/*.csv` |
+| **PostgreSQL direct** | Live warehouse available | `analytics` / `monitoring` schemas |
 
-1. Connect Tableau to the PostgreSQL `analytics` schema (or Snowflake analytics schema).
-2. Use Live or Extract mode depending on data volume.
-3. Configure scheduled extract refresh to align with pipeline execution schedule.
+The CSV path is fully reproducible and is the one used for project demos.
 
-## Recommended Datasets
+---
 
-| Dataset                         | Source View                      | Description                      |
-|---------------------------------|----------------------------------|----------------------------------|
-| Transaction Summary             | `analytics.vw_transaction_summary` | Aggregated transaction metrics |
-| *(Additional datasets TBD)*     |                                  |                                  |
+## Path A — Connect to the CSV Extracts
 
-## KPI Definitions (To Be Defined)
+### 1. Generate the files
 
-| KPI                  | Formula                                     | Granularity     |
-|----------------------|---------------------------------------------|-----------------|
-| Total Revenue        | SUM(amount) WHERE status = 'completed'      | Daily / Monthly |
-| Transaction Count    | COUNT(transaction_id)                       | Daily / Monthly |
-| *(Additional KPIs TBD)* |                                           |                 |
+```powershell
+python scripts/export_bi_data.py
+```
 
-## Data Source Connection
+Files are written to `dashboard/exports/`, together with `kpi_summary.json`
+and `manifest.json`.
 
-- **Type:** PostgreSQL (local) or Snowflake (cloud)
-- **Schema:** `analytics`
-- **Authentication:** Database credentials (from .env)
+### 2. Connect Tableau Desktop / Public
 
-## Refresh Strategy
+1. **Connect → Text file**.
+2. Select `analytics_v_daily_sales.csv` and drag it to the canvas.
+3. Add the other CSVs with **Data → New Data Source → Text file**, or use
+   **Connect → Text file** for each and relate them in the model.
+4. Create relationships:
+   - `analytics_v_product_performance.product_id` = `analytics_v_transaction_detail.product_id`
+   - `analytics_v_customer_segments.customer_id` = `analytics_v_transaction_detail.customer_id`
+   - `analytics_v_daily_sales.full_date` = `analytics_v_transaction_detail.transaction_date`
+5. Confirm data types: dates as Date, money columns as Number (Decimal).
+6. Rename the connection to `Pipeline Warehouse — BI Exports`.
 
-- Align with pipeline schedule
-- Use Tableau Extract scheduled refresh
+### 3. Calculated fields
+
+```tableau
+// Total Revenue
+SUM([Total Sales])
+
+// Average Order Value
+SUM([Total Sales]) / SUM([Transaction Count])
+
+// Quality Score (0-100)
+(
+  AVG([Freshness Score]) +
+  AVG([Completeness Score]) +
+  AVG([Accuracy Score]) +
+  AVG([Contract Adherence Score])
+) / 4
+
+// Pipeline Success Rate
+SUM(IF [Status] = "SUCCESS" THEN 1 ELSE 0 END) / COUNT([Execution Id])
+```
+
+> Column names are case-insensitive in Tableau; use the names that appear in
+> the CSV after import (for example `Total Sales`, `Transaction Count`,
+> `Freshness Score`).
+
+### 4. Sheets and dashboard
+
+| Sheet | Chart type | Fields |
+|-------|-----------|--------|
+| Sales Over Time | Line / area | `Full Date` (continuous) × `Total Sales` |
+| Product Performance | Horizontal bar | `Product Name` × `Total Revenue`, sorted descending |
+| Regional Distribution | Filled map / bar | `Region` or `City` × `Total Sales` |
+| Customer Segments | Pie / treemap | `Segment` × `Total Spend` |
+| Quality Scorecard | Bullet / KPI text | Four quality averages |
+| Pipeline Health | Highlight table | `Started At`, `Pipeline Name`, `Status`, `Duration Seconds` |
+| KPI Header | Text / BANs | Revenue, transactions, AOV, quality |
+
+Assemble the sheets into a dashboard named **Project Outcome**, then save as
+`dashboard/tableau/project_outcome.twbx` (local artifact; not committed because
+binary workbooks cannot be reviewed in diffs).
+
+### 5. Refresh
+
+1. Re-run `python scripts/export_bi_data.py`.
+2. In Tableau Desktop, **Data → Refresh All** (or **Refresh** on the extract).
+3. For Tableau Server/Public, publish the workbook and schedule an extract
+   refresh after the export job.
+
+---
+
+## Path B — Connect Directly to PostgreSQL
+
+1. Install Tableau Desktop or Tableau Public.
+2. **Connect → PostgreSQL**.
+3. Enter:
+   - Server: `localhost`
+   - Port: `5432`
+   - Database: `pipeline_warehouse`
+   - Authentication: username/password from `.env`
+4. Select the `analytics` schema views and, for operational sheets, the
+   `monitoring` tables.
+5. Choose **Live** for current data or **Extract** for scheduled snapshots.
+6. Apply the relationships and calculated fields above.
+
+If PostgreSQL is unavailable, the project automatically falls back to SQLite;
+use Path A in that case.
+
+---
+
+## Field Reference
+
+See [`dataset_documentation.md`](dataset_documentation.md) for column-level
+definitions of every exported dataset.
+
+## Validation
+
+- [ ] All nine CSVs connect without parsing errors.
+- [ ] `Total Revenue` matches `kpi_summary.json` (`revenue`).
+- [ ] Date fields are recognized as dates, not strings.
+- [ ] Quality and pipeline sheets match the monitoring CSVs.
+- [ ] **Refresh All** picks up a new export without breaking relationships.
+
+## Limitations
+
+- Binary `.twbx` files are not generated by the repository; the steps above
+  produce one locally if required for submission.
+- CSV extracts are snapshots. Use the PostgreSQL path for live data.
+- Currency is INR in the sample data; adjust the number format if a different
+  currency is required.

@@ -1,0 +1,13 @@
+{
+  "pipeline_name": "eltl_plus_plus",
+  "execution_id": "exec_a89b36f3583e",
+  "status": "SUCCESS",
+  "started_at": "2026-10-05T15:36:18.846718+00:00",
+  "completed_at": "2026-10-05T15:36:18.952669+00:00",
+  "duration_seconds": 0.1,
+  "records_extracted": 100,
+  "records_valid": 100,
+  "records_invalid": 0,
+  "records_transformed": 100,
+  "error_message": null
+}

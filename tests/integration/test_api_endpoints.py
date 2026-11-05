@@ -94,3 +94,28 @@ class TestSampleDataEndpoint:
         data = response.json()
         assert data["record_count"] == 5
         assert len(data["records"]) == 5
+
+
+class TestBIEndpoints:
+    """Tests for the generated BI deliverables."""
+
+    def test_export_manifest(self, client):
+        response = client.get("/api/v1/bi/exports")
+        assert response.status_code == 200
+        data = response.json()
+        assert "datasets" in data
+        assert "count" in data
+
+    def test_report_metadata(self, client):
+        response = client.get("/api/v1/bi/report")
+        assert response.status_code == 200
+        data = response.json()
+        assert "available" in data
+        assert data["url"] == "/reports/project-outcome"
+
+    def test_outcome_report_route(self, client):
+        response = client.get("/reports/project-outcome")
+        # The report is a generated artifact; accept 404 on a fresh checkout.
+        assert response.status_code in (200, 404)
+        if response.status_code == 200:
+            assert "Project Outcome Report" in response.text
